@@ -1,0 +1,21 @@
+{% extends 'musicshop/base.html' %}
+
+{% block title %}
+  <title>Регистрация пользователя</title>
+{% endblock title %}
+
+{% block content %}
+  {% block content %}
+    <div class="row login_musicshop">
+      <div class="col-md-6 offset-md-3">
+        <h3 class="text-center">Авторизация</h3>
+        <hr>
+        <form action="{% url 'registration' %}" method="post">
+          {% csrf_token %}
+          {{ form }}
+          <input type="submit" class="btn btn-success btn-block" value="Войти">
+        </form>
+      </div>
+    </div>
+  {% endblock content %}
+{% endblock content %}

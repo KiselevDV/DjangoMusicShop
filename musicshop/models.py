@@ -2,7 +2,9 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 from utils import upload_function
 
@@ -65,6 +67,9 @@ class Artist(models.Model):
         verbose_name='Аватарка')
     slug = models.SlugField(unique=True, verbose_name='Слаг')
 
+    def get_absolute_url(self):
+        return reverse('artist_detail', kwargs={'artist_slug': self.slug})
+
     def __str__(self):
         return f'{self.name} | {self.genre.name}'
 
@@ -99,6 +104,12 @@ class Album(models.Model):
     def ct_model(self):
         """Наименование модели (content_type)"""
         return self._meta.model_name
+
+    def get_absolute_url(self):
+        return reverse('album_detail', kwargs={
+            'artist_slug': self.artist.slug,
+            'album_slug': self.slug
+        })
 
     def __str__(self):
         return f'{self.id} | {self.artist.name} | {self.name}'
@@ -146,7 +157,7 @@ class Cart(models.Model):
     owner = models.ForeignKey(
         'Customer', on_delete=models.CASCADE, verbose_name='Покупатель')
     products = models.ManyToManyField(
-        CartProduct, related_name='related_cart', null=True, blank=True,
+        CartProduct, related_name='related_cart', blank=True,
         verbose_name='Продукты для корзины')
     total_products = models.PositiveSmallIntegerField(
         default=0, verbose_name='Всего товаров в корзине')
@@ -272,6 +283,10 @@ class ImageGallery(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
+
+    def image_url(self):
+        return mark_safe(
+            f'<img src="{self.image.url}" width="auto" height="200px">')
 
     def __str__(self):
         return f'Изображение для {self.content_object}'
